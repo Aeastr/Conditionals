@@ -1,8 +1,21 @@
-# Conditionals
+<div align="center">
+  <img width="200" height="200" src="/Resources/icon.png" alt="Conditionals Logo">
+  <h1><b>Conditionals</b></h1>
+  <p>
+    A lightweight SwiftUI package that provides clean, composable conditional modifier APIs for handling OS availability checks.
+  </p>
+</div>
 
-A lightweight SwiftUI package that provides clean, composable conditional modifier APIs for handling OS availability checks.
+<p align="center">
+  <a href="https://developer.apple.com/ios/"><img src="https://img.shields.io/badge/iOS-16%2B-purple.svg" alt="iOS 16+"></a>
+  <a href="https://developer.apple.com/macos/"><img src="https://img.shields.io/badge/macOS-13%2B-blue.svg" alt="macOS 13+"></a>
+  <a href="https://swift.org/"><img src="https://img.shields.io/badge/Swift-6.0-orange.svg" alt="Swift 6.0"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
+</p>
 
-> **Important:** This package is designed primarily for **static conditions** (OS versions, platform detection, compile-time checks). Using conditionals with **runtime state** that changes frequently can cause view identity loss and state resets. See the [View Identity & Performance](#️-important-view-identity--performance) section for details.
+---
+
+> **Important:** This package is designed primarily for **static conditions** (OS versions, compile-time checks). Using conditionals with **runtime state** that changes frequently can cause view identity loss and state resets. See the [View Identity & Performance](#️-important-view-identity--performance) section for details.
 
 ## Purpose
 
