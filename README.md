@@ -7,8 +7,11 @@
 </div>
 
 <p align="center">
-  <a href="https://developer.apple.com/ios/"><img src="https://img.shields.io/badge/iOS-16%2B-purple.svg" alt="iOS 16+"></a>
+  <a href="https://developer.apple.com/ios/"><img src="https://img.shields.io/badge/iOS-16%2B-blue.svg" alt="iOS 16+"></a>
+  <a href="https://developer.apple.com/visionos/"><img src="https://img.shields.io/badge/visionOS-1%2B-purple.svg" alt="visionOS 1+"></a>
   <a href="https://developer.apple.com/macos/"><img src="https://img.shields.io/badge/macOS-13%2B-blue.svg" alt="macOS 13+"></a>
+  <a href="https://developer.apple.com/watchos/"><img src="https://img.shields.io/badge/watchOS-9%2B-blue.svg" alt="watchOS 9+"></a>
+  <a href="https://developer.apple.com/tvos/"><img src="https://img.shields.io/badge/tvOS-16%2B-blue.svg" alt="tvOS 16+"></a>
   <a href="https://swift.org/"><img src="https://img.shields.io/badge/Swift-6.0-orange.svg" alt="Swift 6.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
 </p>
@@ -50,6 +53,7 @@ dependencies: [
 ### Platform Support
 
 - iOS 16.0+
+- visionOS 1.0+
 - macOS 13.0+
 - watchOS 9.0+
 - tvOS 16.0+
@@ -58,35 +62,39 @@ dependencies: [
 
 ### View Extensions
 
-#### `conditionally(if:apply:)`
+#### `conditional(if:apply:)`
 Apply a modifier only when a condition is true.
 
 ```swift
 Text("Hello")
-    .conditionally(if: OSVersion.iOS(18)) { view in
+    .conditional(if: OSVersion.iOS(26)) { view in
         view.fontDesign(.rounded)
     }
 ```
 
-#### `conditionally(if:apply:otherwise:)`
+#### `conditional(if:apply:otherwise:)`
 Apply one modifier when true, another when false.
 
 ```swift
 Text("Adaptive")
-    .conditionally(
-        if: { OSVersion.iOS(18) },
-        apply: { $0.background(.ultraThinMaterial) },
-        otherwise: { $0.background(.gray.opacity(0.2)) }
-    )
+    .conditional { view in
+        if #available(iOS 26.0, *) {
+            view.glassEffect(.regular, in: .rect(cornerRadius: 12))
+        } else {
+            view.background(.regularMaterial, in: .rect(cornerRadius: 12))
+        }
+    }
 ```
 
-#### `conditionally(apply:)`
+#### `conditional(apply:)`
 Full control over availability checks within the closure.
 
 ```swift
 Text("Custom Check")
-    .conditionally { view in
-        if #available(iOS 17.0, *) {
+    .conditional { view in
+        if #available(iOS 26.0, *) {
+            view.glassEffect(.regular, in: .rect(cornerRadius: 12))
+        } else if #available(iOS 18.0, *) {
             view.background(.regularMaterial, in: .rect(cornerRadius: 12))
         } else {
             view.background(Color.gray.opacity(0.3))
@@ -94,43 +102,83 @@ Text("Custom Check")
     }
 ```
 
-#### `conditionally(unless:apply:)`
+#### `conditional(if:apply:)` - Optional Unwrapping
+Apply a modifier when an optional value is non-nil, with the unwrapped value available.
+
+```swift
+Text("Hello")
+    .conditional(if: optionalColor) { view, color in
+        view.foregroundStyle(color)
+    }
+```
+
+#### `conditional(unless:apply:)`
 Apply a modifier only when a condition is false. More readable than `if: !condition`.
 
 ```swift
 Text("Content")
-    .conditionally(unless: isCompact) { view in
+    .conditional(unless: isCompact) { view in
         view.padding(.horizontal, 40)
     }
-
-// More semantic than:
-// .conditionally(if: !isCompact) { ... }
 ```
 
 ### ToolbarContent Extensions
 
 All `View` conditional methods are available for `ToolbarContent` as well:
 
+1. `.conditional(if:apply:)` - Basic conditional
+2. `.conditional(if:apply:otherwise:)` - With fallback
+3. `.conditional(apply:)` - Closure variant
+4. `.conditional(if:apply:)` - Optional unwrapping
+5. `.conditional(unless:apply:)` - Negated variant
+
 ```swift
 ToolbarItem(placement: .topBarTrailing) {
     Button("Action") {}
-        .conditionally(if: OSVersion.iOS(16)) { view in
+        .conditional(if: OSVersion.iOS(26)) { view in
             view.tint(.blue)
         }
 }
 ```
 
-### ToolbarItemPlacement Extension
+### ToolbarItemPlacement Extensions
 
-#### `conditional(modern:fallback:)`
-Choose placement based on OS version.
+Choose toolbar item placement conditionally.
+
+#### `conditional(if:then:else:)`
+Select placement based on a boolean condition.
 
 ```swift
 ToolbarItemGroup(
-    placement: .conditional(modern: .bottomBar, fallback: .secondaryAction)
+    placement: .conditional(
+        if: OSVersion.iOS(26),
+        then: .bottomBar,
+        else: .secondaryAction
+    )
 ) {
     Button("Edit") {}
     Button("Share") {}
+}
+```
+
+#### `conditional(_:)`
+Full control with closure for complex availability checks.
+
+```swift
+ToolbarItemGroup(
+    placement: .conditional {
+        #if os(iOS)
+        if #available(iOS 26.0, *) {
+            .bottomBar
+        } else {
+            .secondaryAction
+        }
+        #else
+        .automatic
+        #endif
+    }
+) {
+    Button("Edit") {}
 }
 ```
 
@@ -164,7 +212,7 @@ let style = OS.is26 ? .glass : .regular
 
 ```swift
 Text("Hello")
-    .conditionally(if: someCondition) { view in
+    .conditional(if: someCondition) { view in
         view.padding(20)
     }
 ```
@@ -173,10 +221,12 @@ Text("Hello")
 
 ```swift
 Text("Modern UI")
-    .conditionally(if: OSVersion.iOS(18)) { view in
-        view
-            .fontDesign(.rounded)
-            .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
+    .conditional { view in
+        if #available(iOS 26.0, *) {
+            view.glassEffect(.regular, in: .rect(cornerRadius: 12))
+        } else {
+            view.background(.regularMaterial, in: .rect(cornerRadius: 12))
+        }
     }
 ```
 
@@ -186,7 +236,7 @@ For features that require compile-time availability (like iOS 26's glass effects
 
 ```swift
 Text("Glass Effect")
-    .conditionally { view in
+    .conditional { view in
         if #available(iOS 26.0, *) {
             view.glassEffect(.regular, in: .rect(cornerRadius: 16))
         } else {
@@ -195,30 +245,32 @@ Text("Glass Effect")
     }
 ```
 
+> **💡 Note:** If you're specifically working with iOS 26's glass effects and want a dedicated solution, check out [UniversalGlass](https://github.com/Aeastr/UniversalGlass). It brings SwiftUI's iOS 26 glass APIs to earlier deployments with lightweight shims—keeping your UI consistent on iOS 18+, while automatically deferring to real implementations wherever they exist. UniversalGlass uses Conditionals under the hood but is purpose-built for glass effects.
+
 
 ### Primary/Fallback Pattern
 
 ```swift
 Text("Adaptive Card")
     .padding()
-    .conditionally(
-        if: { OSVersion.iOS(17) },
-        apply: { view in
-            view.background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
-        },
-        otherwise: { view in
-            view.background(Color(.systemGray6), in: .rect(cornerRadius: 12))
+    .conditional { view in
+        if #available(iOS 26.0, *) {
+            view.glassEffect(.regular, in: .rect(cornerRadius: 12))
+        } else {
+            view.background(.regularMaterial, in: .rect(cornerRadius: 12))
         }
-    )
+    }
 ```
 
 ### Platform-Specific Code
 
 ```swift
 Text("Cross-Platform")
-    .conditionally { view in
+    .conditional { view in
         #if os(iOS)
-        if #available(iOS 17.0, *) {
+        if #available(iOS 26.0, *) {
+            view.glassEffect(.regular, in: .rect(cornerRadius: 12))
+        } else if #available(iOS 18.0, *) {
             view.background(.regularMaterial, in: .rect(cornerRadius: 12))
         } else {
             view.background(Color.gray.opacity(0.3))
@@ -239,7 +291,7 @@ NavigationStack {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Action") {}
-                    .conditionally(if: OSVersion.iOS(16)) { view in
+                    .conditional(if: OSVersion.iOS(26)) { view in
                         view.tint(.blue)
                     }
             }
@@ -255,7 +307,7 @@ struct ContentView: View {
 
     var body: some View {
         Text("Article")
-            .conditionally(unless: isCompact) { view in
+            .conditional(unless: isCompact) { view in
                 view
                     .frame(maxWidth: 600)
                     .padding(.horizontal, 40)
@@ -270,7 +322,7 @@ For platform-specific code, use Swift's built-in `#if os()` compiler directives:
 
 ```swift
 Text("Cross-Platform")
-    .conditionally { view in
+    .conditional { view in
         #if os(iOS)
         view.padding()
             .background(.blue.opacity(0.2))
@@ -287,7 +339,7 @@ Text("Cross-Platform")
 
 ### Understanding View Identity Loss
 
-When you conditionally wrap an entire view based on runtime state that can change, SwiftUI sees it as a **completely different view** when the condition toggles. This causes:
+When you conditional wrap an entire view based on runtime state that can change, SwiftUI sees it as a **completely different view** when the condition toggles. This causes:
 
 - ❌ **Full view reconstruction** - SwiftUI tears down and rebuilds the entire view hierarchy
 - ❌ **Lost state** - any `@State` inside gets reset
@@ -308,7 +360,7 @@ struct BadExample: View {
             .onTapGesture { counter += 1 }
             // ❌ BAD: When items changes from empty → non-empty,
             // SwiftUI sees this as a completely different view tree
-            .conditionally(if: !items.isEmpty) { view in
+            .conditional(if: !items.isEmpty) { view in
                 view.badge(items.count)
             }
     }
@@ -356,14 +408,14 @@ These conditions **never change at runtime**, so view identity is stable:
 ```swift
 // ✅ Safe - OS version never changes at runtime
 Text("Hello")
-    .conditionally(if: OSVersion.iOS(18)) { view in
+    .conditional(if: OSVersion.iOS(26)) { view in
         view.fontDesign(.rounded)
     }
 
 
 // ✅ Safe - Styling modifiers don't affect view identity
 Text("Content")
-    .conditionally(if: isDarkMode) { view in
+    .conditional(if: isDarkMode) { view in
         view.foregroundStyle(.white)
     }
 ```
@@ -375,17 +427,21 @@ Modifiers that only affect appearance, not structure:
 ```swift
 // ✅ Colors, fonts, padding - all safe
 Text("Title")
-    .conditionally(if: isHighlighted) { view in
+    .conditional(if: isHighlighted) { view in
         view
             .foregroundStyle(.blue)
             .fontWeight(.bold)
             .padding()
     }
 
-// ✅ Backgrounds are safe when the condition is for styling
+// ✅ Effects are safe when the condition is for styling
 Text("Card")
-    .conditionally(if: OSVersion.iOS(17)) { view in
-        view.background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
+    .conditional { view in
+        if #available(iOS 26.0, *) {
+            view.glassEffect(.regular, in: .rect(cornerRadius: 12))
+        } else {
+            view.background(.regularMaterial, in: .rect(cornerRadius: 12))
+        }
     }
 ```
 
@@ -396,7 +452,7 @@ Avoid wrapping views when the condition depends on app state that can change:
 ```swift
 // ❌ BAD: Collection state can change
 Text("Items")
-    .conditionally(if: !items.isEmpty) { view in
+    .conditional(if: !items.isEmpty) { view in
         view.badge(items.count)
     }
 
@@ -410,7 +466,7 @@ Text("Items")
 
 // ❌ BAD: Boolean state can toggle
 Text("Status")
-    .conditionally(if: isActive) { view in
+    .conditional(if: isActive) { view in
         view.background(.green)
     }
 
@@ -473,13 +529,13 @@ Group {
 
 ```swift
 Text("Hello")
-    .conditionally(if: OSVersion.iOS(18)) { view in
+    .conditional(if: OSVersion.iOS(26)) { view in
         view.fontWeight(.semibold)
     }
-    .conditionally { view in
-        if #available(iOS 18.0, *) {
-            view.background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
-        } else if #available(iOS 17.0, *) {
+    .conditional { view in
+        if #available(iOS 26.0, *) {
+            view.glassEffect(.regular, in: .rect(cornerRadius: 12))
+        } else if #available(iOS 18.0, *) {
             view.background(.regularMaterial, in: .rect(cornerRadius: 12))
         } else {
             view.background(Color.gray.opacity(0.3), in: .rect(cornerRadius: 12))
