@@ -437,7 +437,7 @@ Text("Glass Effect")
     }
 ```
 
-> **💡 Note:** If you're specifically working with iOS 26's glass effects and want a dedicated solution, check out [UniversalGlass](https://github.com/Aeastr/UniversalGlass). It brings SwiftUI's iOS 26 glass APIs to earlier deployments with lightweight shims—keeping your UI consistent on iOS 18+, while automatically deferring to real implementations wherever they exist. UniversalGlass uses Conditionals under the hood but is purpose-built for glass effects.
+> **💡 Note:** If you're specifically working with iOS 26's glass effects and want a dedicated solution, check out [UniversalGlass](https://github.com/Aeastr/UniversalGlass). It brings SwiftUI's iOS 26 glass APIs to earlier deployments with lightweight shims—keeping your UI consistent on iOS 18+, while automatically deferring to real implementations wherever they exist.
 
 
 ### Primary/Fallback Pattern
