@@ -18,6 +18,35 @@
 
 ---
 
+## Table of Contents
+
+- [Purpose](#purpose)
+- [When to Use Conditionals vs `#if` Directives](#when-to-use-conditionals-vs-if-directives)
+- [Installation](#installation)
+- [API Overview](#api-overview)
+  - [View Extensions](#view-extensions)
+  - [ToolbarContent Extensions](#toolbarcontent-extensions)
+  - [ToolbarItemPlacement Extensions](#toolbaritemplacement-extensions)
+  - [Generic Conditional Functions](#generic-conditional-functions)
+  - [Making Any Type Conditional](#making-any-type-conditional)
+  - [OS Version Helpers](#os-version-helpers)
+- [Usage Examples](#usage-examples)
+  - [Basic Conditional](#basic-conditional)
+  - [OS Version-Specific Features](#os-version-specific-features)
+  - [Gated Compiler Features](#gated-compiler-features)
+  - [Primary/Fallback Pattern](#primaryfallback-pattern)
+  - [Platform-Specific Code](#platform-specific-code)
+  - [Toolbar Conditionals](#toolbar-conditionals)
+  - [Using `unless` for Better Readability](#using-unless-for-better-readability)
+- [View Identity & Performance](#️-important-view-identity--performance)
+  - [Understanding View Identity Loss](#understanding-view-identity-loss)
+  - [When to Use Conditionals Safely](#when-to-use-conditionals-safely)
+  - [Best Practices Summary](#best-practices-summary)
+- [Why Conditionals?](#why-conditionals)
+- [License](#license)
+
+---
+
 > **Important:** This package is designed primarily for **static conditions** (OS versions, compile-time checks). Using conditionals with **runtime state** that changes frequently can cause view identity loss and state resets. See the [View Identity & Performance](#️-important-view-identity--performance) section for details.
 
 ## Purpose
