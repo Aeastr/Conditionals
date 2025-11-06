@@ -21,6 +21,7 @@
 ## Table of Contents
 
 - [Purpose](#purpose)
+- [Do I Need Conditionals? Quick Decision Guide](#do-i-need-conditionals-quick-decision-guide)
 - [When to Use Conditionals vs `#if` Directives](#when-to-use-conditionals-vs-if-directives)
 - [Installation](#installation)
 - [API Overview](#api-overview)
@@ -60,6 +61,32 @@ Instead of cluttering your views with nested `#available` checks, Conditionals p
 
 **Best suited for:** OS version checks, compile-time features, static configuration.
 **Not recommended for:** Runtime state, collections, toggleable properties (use `if`/`overlay`/`background` instead).
+
+## Do I Need Conditionals? Quick Guide
+
+**Ask: "Will this condition change while my app is running?"**
+
+- **NO** (OS version, device type, platform) → ✅ **Use Conditionals**
+- **YES** (state variables, user input, collections) → ❌ **Use `if`/ternary/overlay**
+
+```swift
+// ✅ GOOD - OS version is static
+.conditional(if: OSVersion.iOS(17)) { view in
+    view.fontDesign(.rounded)
+}
+
+// ❌ BAD - isActive changes at runtime
+.conditional(if: isActive) { view in  // Don't do this!
+    view.foregroundStyle(.blue)
+}
+
+// ✅ GOOD - Use ternary instead
+.foregroundStyle(isActive ? .blue : .gray)
+```
+
+> **💡 Remember:** Conditionals = **compile-time or launch-time decisions**. Not runtime state changes!
+>
+> See [View Identity & Performance](#️-important-view-identity--performance) for detailed examples and technical explanation.
 
 ## When to Use Conditionals vs `#if` Directives
 
