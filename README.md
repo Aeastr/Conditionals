@@ -32,6 +32,50 @@ Instead of cluttering your views with nested `#available` checks, Conditionals p
 **Best suited for:** OS version checks, compile-time features, static configuration.
 **Not recommended for:** Runtime state, collections, toggleable properties (use `if`/`overlay`/`background` instead).
 
+## When to Use Conditionals vs `#if` Directives
+
+### Use Standard Swift Compiler Directives (`#if os()`)
+
+For **platform-specific APIs** that simply don't exist on certain platforms, use Swift's built-in compiler directives directly:
+
+```swift
+// ✅ Use #if os() - navigationBarTitleDisplayMode is iOS-only
+NavigationStack {
+    ContentView()
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+}
+```
+
+**Why not Conditionals?** The API doesn't exist on macOS at all—it's not a version issue, it's a platform issue. Standard `#if` directives handle this cleanly at compile time.
+
+### Use Conditionals for OS Version Checks
+
+Use Conditionals when you need to check **OS versions** for features that were introduced in specific releases:
+
+```swift
+// ✅ Use Conditionals - glassEffect requires iOS 26.0+
+Text("Card")
+    .conditional { view in
+        if #available(iOS 26.0, *) {
+            view.glassEffect(.regular, in: .rect(cornerRadius: 12))
+        } else {
+            view.background(.regularMaterial, in: .rect(cornerRadius: 12))
+        }
+    }
+```
+
+**Why Conditionals?** The API exists across platforms but requires a minimum OS version. Conditionals provides a clean, chainable API for these version-gated features.
+
+### Quick Reference
+
+| Scenario | Use | Example |
+|----------|-----|---------|
+| Platform-specific API | `#if os(iOS)` | `.navigationBarTitleDisplayMode()` (iOS only) |
+| Version-gated feature | Conditionals | `.glassEffect()` (iOS 26.0+) |
+| Platform + version | Both | `#if os(iOS)` with `if #available(iOS 26.0, *)` |
+
 ## Installation
 
 ### Swift Package Manager
@@ -143,7 +187,7 @@ ToolbarItem(placement: .topBarTrailing) {
 
 ### ToolbarItemPlacement Extensions
 
-Choose toolbar item placement conditionally.
+Choose toolbar item placement conditionally using the `Conditional` protocol.
 
 #### `conditional(if:then:else:)`
 Select placement based on a boolean condition.
@@ -181,6 +225,154 @@ ToolbarItemGroup(
     Button("Edit") {}
 }
 ```
+
+#### `conditional(unless:then:else:)`
+Select placement based on a negated condition.
+
+```swift
+ToolbarItemGroup(
+    placement: .conditional(
+        unless: isCompact,
+        then: .principal,
+        else: .automatic
+    )
+) {
+    Text("Title")
+}
+```
+
+### Generic Conditional Functions
+
+For types that don't have specific extensions, use the generic `conditional()` functions:
+
+#### `conditional(if:then:else:)`
+Select any value conditionally.
+
+```swift
+let color = conditional(
+    if: isDarkMode,
+    then: Color.white,
+    else: Color.black
+)
+
+Text("Hello")
+    .foregroundStyle(
+        conditional(
+            if: OSVersion.iOS(17),
+            then: Color.red.gradient,
+            else: Color.red
+        )
+    )
+```
+
+#### `conditional(_:)`
+Full control for `#available` checks with any type.
+
+```swift
+.presentationDetents([
+    conditional {
+        if #available(iOS 16.0, *) {
+            PresentationDetent.height(300)
+        } else {
+            .medium
+        }
+    }
+])
+```
+
+#### `conditional(unless:then:else:)`
+Select values based on a negated condition.
+
+```swift
+let padding = conditional(
+    unless: isCompact,
+    then: 40.0,
+    else: 16.0
+)
+```
+
+#### `conditional(if:transform:else:)`
+Transform optional values or provide fallback.
+
+```swift
+let spacing = conditional(
+    if: customSpacing,
+    transform: { $0 * 2 },
+    else: 16.0
+)
+```
+
+### Making Any Type Conditional
+
+You can make **any type** work with `.conditional()` syntax by conforming to the `Conditional` protocol. It's as simple as one line:
+
+```swift
+extension PresentationDetent: Conditional {}
+```
+
+That's it! No implementation needed. Now you get all conditional methods for free:
+
+```swift
+// Value selection with dot syntax
+.presentationDetents([
+    .conditional(
+        if: OSVersion.iOS(16),
+        then: .height(300),
+        else: .medium
+    )
+])
+
+// Or with #available checks
+.presentationDetents([
+    .conditional {
+        if #available(iOS 16.0, *) {
+            .height(300)
+        } else {
+            .medium
+        }
+    }
+])
+
+// Or with unless variant
+.presentationDetents([
+    .conditional(
+        unless: isCompact,
+        then: .large,
+        else: .medium
+    )
+])
+```
+
+#### More Examples
+
+```swift
+// Make ScrollBounceBehavior conditional
+extension ScrollBounceBehavior: Conditional {}
+
+ScrollView {
+    content
+}
+.scrollBounceBehavior(
+    .conditional(
+        if: OSVersion.iOS(18),
+        then: .basedOnSize,
+        else: .always
+    )
+)
+
+// Make any custom type conditional
+extension MyCustomPlacement: Conditional {}
+
+myView.customModifier(
+    placement: .conditional(
+        if: someCondition,
+        then: .leading,
+        else: .trailing
+    )
+)
+```
+
+The protocol provides both static value selection methods and instance transformation methods, so conforming types get the full conditional API automatically.
 
 ### OS Version Helpers
 

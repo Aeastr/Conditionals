@@ -12,7 +12,11 @@ import SwiftUI
 
 // MARK: - View Extensions
 
-/// A view extension that provides clean conditional modifier application based on OS availability.
+/// View extensions that provide conditional modifier application using @ViewBuilder.
+///
+/// These methods match the signatures from the Conditional protocol but use @ViewBuilder
+/// for proper SwiftUI view composition. View doesn't formally conform to Conditional since
+/// protocol extensions can't have conformance clauses, but it provides the same API surface.
 public extension View {
     /// conditional applies a modifier only if the current OS version supports it.
     ///
@@ -38,6 +42,7 @@ public extension View {
         if condition: @autoclosure () -> Bool,
         @ViewBuilder apply modifier: (Self) -> Content
     ) -> some View {
+        
         if condition() {
             modifier(self)
         } else {
@@ -183,7 +188,7 @@ public extension View {
                     .foregroundStyle(.blue)
             }
 
-        Text("With Fallback")
+        Text("With Fallback")            
             .padding()
             .conditional { view in
                 #if os(iOS) || os(macOS)

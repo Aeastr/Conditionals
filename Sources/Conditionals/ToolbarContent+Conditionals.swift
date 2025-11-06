@@ -12,7 +12,11 @@ import SwiftUI
 
 // MARK: - ToolbarContent Extensions
 
-/// A ToolbarContent extension that provides clean conditional modifier application.
+/// ToolbarContent extensions that provide conditional modifier application using @ToolbarContentBuilder.
+///
+/// These methods match the signatures from the Conditional protocol but use @ToolbarContentBuilder
+/// for proper SwiftUI toolbar composition. ToolbarContent doesn't formally conform to Conditional since
+/// protocol extensions can't have conformance clauses, but it provides the same API surface.
 public extension ToolbarContent {
     /// conditional applies a modifier only if the current OS version supports it.
     ///
@@ -40,6 +44,7 @@ public extension ToolbarContent {
             modifier(self)
         } else {
             self
+                
         }
     }
 
