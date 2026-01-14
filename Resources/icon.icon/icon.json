@@ -1,10 +1,10 @@
 {
   "fill" : {
-    "automatic-gradient" : "display-p3:0.17574,0.32154,0.42957,1.00000"
+    "automatic-gradient" : "display-p3:0.11521,0.37380,0.42957,1.00000"
   },
   "groups" : [
     {
-      "blur-material" : 0.1,
+      "blur-material" : 0.15,
       "layers" : [
         {
           "fill" : {
@@ -36,7 +36,7 @@
       "specular" : true,
       "translucency" : {
         "enabled" : true,
-        "value" : 0.8
+        "value" : 0.6
       }
     },
     {
