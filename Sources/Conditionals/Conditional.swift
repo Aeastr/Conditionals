@@ -10,6 +10,40 @@
 
 import SwiftUI
 
+// MARK: - Future Consideration: Static Protocol Pattern
+//
+// An alternative API design could enforce static-only conditions at the type level
+// using a protocol with a static requirement:
+//
+//     protocol StaticCondition {
+//         static var isMet: Bool { get }
+//     }
+//
+//     // Library ships pre-defined conditions:
+//     public enum iOS17: StaticCondition {
+//         public static var isMet: Bool { OSVersion.iOS(17) }
+//     }
+//
+//     // Usage becomes type-based:
+//     .conditional(iOS17.self) { $0.fontDesign(.rounded) }
+//
+// Why this pattern works:
+// - Makes misuse inconvenient rather than impossible (which is enough)
+// - Passing runtime state like `isActive` would require defining a type,
+//   accessing instance state from a static context (awkward), and likely
+//   using a singleton/global (obvious code smell)
+// - Nobody does that accidentally - the friction IS the enforcement
+// - Signals intent at the API level: types feel more deliberate than bools
+//
+// Trade-offs vs current `OSVersion.iOS(17)` approach:
+// - Lose: Parameterized syntax flexibility
+// - Gain: Type-level intent, harder to accidentally pass runtime state
+//
+// Could potentially offer both APIs and let users choose their strictness level.
+//
+// Inspired by Engine's (https://github.com/nathantannar4/Engine) use of
+// static protocol vars to enforce compile-time condition specification.
+
 // MARK: - Conditional Protocol
 
 /// A protocol that enables conditional value selection and transformation based on availability checks.
